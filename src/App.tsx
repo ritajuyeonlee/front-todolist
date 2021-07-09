@@ -11,15 +11,16 @@ function App() {
     const task = input;
     const [filter, setFilter] = useState(null);
 
+
     async function fetchTodos() {
         try{
-            setLoading(true)
-            const response = await axios.get('/todo')
-            setTodos(response.data);
+                setLoading(true)
+                const response = await axios.get('/todo')
+                setTodos(response.data);
         }catch (e) {
-            setError(e)
-        }
-        setLoading(false);
+                setError(e)
+            }
+            setLoading(false);
     }
 
     useEffect(() => {
@@ -30,14 +31,17 @@ function App() {
         setInput(e.target.value);
     };
 
-    const onCreate = () => {
+    async function onCreate() {
         if (task !== "") {
             const todo = {
                 task: task,
                 check: true,
             };
-            axios.post('/todo',todo)
-            setTodos(todos.concat(todo));
+            const newtodo = await axios.post('/todo',todo)
+            // setTodos(todos.concat(todo))
+            await fetchTodos()
+
+            console.log(newtodo)
             setInput("");
         }
     };
@@ -48,9 +52,8 @@ function App() {
         const newTodo={
             ...todo,
             check: !todo.check
-
         }
-        axios.put('/todo',{ ...todo, check: !todo.check })
+        axios.put('/todo', newTodo)
         setTodos(
             todos.map(t =>
                 t.id === todo.id ? { ...t, check: !t.check } : t
