@@ -31,17 +31,15 @@ function App() {
         setInput(e.target.value);
     };
 
-    async function onCreate() {
+    function onCreate() {
         if (task !== "") {
             const todo = {
                 task: task,
-                check: true,
+                isCheck: true,
             };
-            const newtodo = await axios.post('/todo',todo)
+            axios.post('/todo',todo)
             // setTodos(todos.concat(todo))
-            await fetchTodos()
-
-            console.log(newtodo)
+             fetchTodos()
             setInput("");
         }
     };
@@ -51,7 +49,7 @@ function App() {
     const onToggle = todo => {
         const newTodo={
             ...todo,
-            check: !todo.check
+            isCheck: !todo.isCheck
         }
         axios.put('/todo', newTodo)
         setTodos(
@@ -61,7 +59,6 @@ function App() {
         );
         console.log(todos)
     };
-
     const onRemove = id => {
         axios({
             url: '/todo',
@@ -106,9 +103,7 @@ function App() {
                   todos={filter == null ? todos : todos.filter(todo => todo.check === filter)}
                   onToggle={onToggle}
                   onRemove={onRemove}
-
               />
-
           </div>
 
       </div>
