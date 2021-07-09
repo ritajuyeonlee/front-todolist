@@ -11,14 +11,18 @@ function App() {
     const task = input;
     const [filter, setFilter] = useState(null);
 
-
-    useEffect(() => {
-        async function fetchTodos() {
+    async function fetchTodos() {
+        try{
             setLoading(true)
             const response = await axios.get('/todo')
             setTodos(response.data);
-            setLoading(false);
+        }catch (e) {
+            setError(e)
         }
+        setLoading(false);
+    }
+
+    useEffect(() => {
         fetchTodos()
     }, []);
 
@@ -41,24 +45,27 @@ function App() {
         setFilter(filter);
     };
     const onToggle = todo => {
-        axios.put('/todo',{...todo,check:!todo.check})
+        const newTodo={
+            ...todo,
+            check: !todo.check
+
+        }
+        axios.put('/todo',{ ...todo, check: !todo.check })
         setTodos(
             todos.map(t =>
                 t.id === todo.id ? { ...t, check: !t.check } : t
             )
         );
+        console.log(todos)
     };
 
     const onRemove = id => {
         axios({
             url: '/todo',
             method: 'delete',
-            params: {
-                id: id
-            }
+            params: {id: id}
         })
         setTodos(todos.filter(todo => todo.id !== id));
-
     };
 
     if(loading) return <div> Loading...</div>
@@ -68,19 +75,30 @@ function App() {
   return (
       <div>
         <div className="inputbox">
+              <h1>TO DO LIST</h1>
             <input
                 className="input"
                 name="task"
                 placeholder="what to do?"
                 value={task}
                 onChange={onChange}
-            />
+            />&nbsp;&nbsp;
             <button className="button" onClick={onCreate}>
                 add
             </button>
         </div>
           <div className="listbox">
-              <h1>TO DO LIST</h1>
+              <div className="buttonbox">
+                  <button className="button" onClick={() => onFilter(null)}>
+                      all
+                  </button>&nbsp;&nbsp;
+                  <button className="button" onClick={() => onFilter(true)}>
+                      active
+                  </button>&nbsp;&nbsp;
+                  <button className="button" onClick={() => onFilter(false)}>
+                      completed
+                  </button>
+              </div>
               <TodoList
                   todos={filter == null ? todos : todos.filter(todo => todo.check === filter)}
                   onToggle={onToggle}
@@ -89,17 +107,7 @@ function App() {
               />
 
           </div>
-          <div className="buttonbox">
-              <button className="button" onClick={() => onFilter(null)}>
-                  all
-              </button>
-              <button className="button" onClick={() => onFilter(true)}>
-                  active
-              </button>
-              <button className="button" onClick={() => onFilter(false)}>
-                  completed
-              </button>
-          </div>
+
       </div>
   );
 }
